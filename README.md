@@ -42,7 +42,9 @@ Stay tuned for version **2.0**.
 
 
 ### Redirect Analyzer  
-![Redirect Analyzer](./screenshots/redirect.png)
+<img width="970" height="337" alt="image" src="https://github.com/user-attachments/assets/b33dff2c-46e5-4975-8ca9-93ee26b50a46" />
+<img width="861" height="1231" alt="image" src="https://github.com/user-attachments/assets/c397cf53-8bd1-4fae-b1e8-8bb8582aa153" />
+
 
 ---
 
