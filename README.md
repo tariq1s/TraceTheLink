@@ -1,7 +1,7 @@
-# 🛡️ TraceTheLink – DFIR Analysis Suite  
-Modern Digital Forensics & Incident Response tools for URL Intelligence, Redirect Forensics, and Threat Analysis.
+# 🛡️ TraceTheLink
+Modern SOC analyst tools for URL Intelligence, Redirects, and Threat Analysis.
 
-TraceTheLink is a DFIR-grade tool designed for SOC Analysts, Threat Hunters, Incident Responders, and Malware Analysts who need to quickly understand URL redirect behavior, detect suspicious patterns, and evaluate phishing risk.
+TraceTheLink is a tool designed for SOC Analysts, Threat Hunters, Incident Responders, and who need to quickly understand URL redirect behavior, detect suspicious patterns, and evaluate phishing risk.
 
 ---
 
@@ -15,7 +15,7 @@ TraceTheLink is a DFIR-grade tool designed for SOC Analysts, Threat Hunters, Inc
 - Redirect graph visualization (Graphviz)  
 - Phishing risk scoring engine  
 - Behavioral indicators  
-- Clean DFIR-style UI with dark mode  
+- two style UI 
 
 ---
 
@@ -64,4 +64,4 @@ git clone https://github.com/<your-username>/TraceTheLink.git
 cd TraceTheLink
 
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run app.py or python -m streamlit run app.py --server.headless true
