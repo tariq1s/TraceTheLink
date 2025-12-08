@@ -68,15 +68,16 @@ h1, h2, h3, h4 {
 # Main UI
 # ============================
 
-st.title("🛡 TraceTheLink – DFIR Analysis Suite")
-st.write("Modern Digital Forensics & Incident Response Tools for URL Intelligence & Redirect Tracking.")
-
 st.markdown("""
-<div class="df-card">
-<h3 class="glow">Select a Module</h3>
-<p>Choose a DFIR analysis component to begin.</p>
-</div>
+    <h1 style='color:#cfe3ff; margin-bottom: 5px;'>
+        🛡 TraceTheLink – Analysis Suite
+    </h1>
+    <p style='color:#9bb5d1; font-size: 1.1rem;'>
+        Modern Tools for URL Intelligence, Redirect Tracking, and Threat Analysis.
+    </p>
 """, unsafe_allow_html=True)
+
+
 
 col1, col2 = st.columns(2)
 

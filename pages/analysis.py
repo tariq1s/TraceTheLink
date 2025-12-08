@@ -5,10 +5,10 @@ import re
 import tldextract
 from graphviz import Digraph
 
-st.set_page_config(page_title="DFIR Redirect Analysis", layout="wide")
+st.set_page_config(page_title="TraceTheLink Redirect Analysis", layout="wide")
 
 # ============================
-# Modern DFIR Blue CSS
+# Modern Blue UI
 # ============================
 
 st.markdown("""
@@ -50,7 +50,7 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🔗 DFIR Redirect Analyzer")
+st.markdown("<h1 style='color:#cfe3ff;'>🔗 Redirect Analyzer</h1>", unsafe_allow_html=True)
 
 # ============================
 # Helper Functions
@@ -102,7 +102,7 @@ def analyze_redirects(url):
                 url = meta
                 continue
 
-            js = re.search(r"window.location.href\s*=\s*['\"](.*?)['\"]", r.text)
+            js = re.search(r"window.location.href\\s*=\\s*['\"](.*?)['\"]", r.text)
             if js:
                 url = js.group(1)
                 continue
@@ -204,11 +204,10 @@ if st.button("Analyze") and url:
         dot.edge(f"n{i}", f"n{i+1}")
 
     st.graphviz_chart(dot)
-
     st.markdown("</div>", unsafe_allow_html=True)
 
     # -------------------------
-    # Threat Score
+    # Threat Level
     # -------------------------
     st.markdown("<div class='df-box'><h3>⚠️ Threat Level</h3>", unsafe_allow_html=True)
 
