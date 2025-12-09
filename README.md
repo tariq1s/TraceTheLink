@@ -38,7 +38,8 @@ Stay tuned for version **2.0**.
 ## 📸 Screenshots
 
 ### Homepage  
-<img width="870" height="484" alt="image" src="https://github.com/user-attachments/assets/7356d522-a97f-49a0-b71c-4c480c6e3945" />
+
+<img width="546" height="479" alt="4" src="https://github.com/user-attachments/assets/7aef9f67-4a57-4db4-97dc-8879a4463423" />
 
 
 ### Redirect Analyzer  
