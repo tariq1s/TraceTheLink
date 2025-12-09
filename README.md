@@ -43,11 +43,13 @@ Stay tuned for version **2.0**.
 
 
 ### Redirect Analyzer  
-<img width="970" height="337" alt="image" src="https://github.com/user-attachments/assets/b33dff2c-46e5-4975-8ca9-93ee26b50a46" />
-<img width="861" height="1231" alt="image" src="https://github.com/user-attachments/assets/c397cf53-8bd1-4fae-b1e8-8bb8582aa153" />
+
+<img width="546" height="479" alt="4" src="https://github.com/user-attachments/assets/d67aed85-bfbe-4b19-86b4-2e2e55be491d" />
 
 
----
+---<img width="514" height="716" alt="2" src="https://github.com/user-attachments/assets/2c8014c4-fee6-4c04-8042-6f4d49bdd198" />
+
+<img width="610" height="810" alt="3" src="https://github.com/user-attachments/assets/10c1d463-9a25-4fee-a971-7c4636059802" />
 
 ## 🧰 Tech Stack
 - **Python 3**
