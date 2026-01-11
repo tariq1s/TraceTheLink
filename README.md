@@ -1,11 +1,11 @@
-# 🛡️ TraceTheLink
+ TraceTheLink
 Modern SOC analyst tools for URL Intelligence, Redirects, and Threat Analysis.
 
 TraceTheLink is a tool designed for SOC Analysts, Threat Hunters, Incident Responders, and who need to quickly understand URL redirect behavior, detect suspicious patterns, and evaluate phishing risk.
 
 ---
 
-## 🚀 Features
+##  Features
 ### 🔗 Redirect Analyzer (Module 1 – fully implemented)
 - Multi-step redirect chain extraction  
 - HTTP redirect detection (301/302/307/308)  
@@ -19,7 +19,7 @@ TraceTheLink is a tool designed for SOC Analysts, Threat Hunters, Incident Respo
 
 ---
 
-### ⚠️ Threat Scoring Engine (Module 2 – Coming Soon)
+###  Threat Scoring Engine (Module 2 – Coming Soon)
 A more advanced threat engine is currently under development.
 
 Planned capabilities:
@@ -48,7 +48,7 @@ Stay tuned for version **2.0**.
 
 <img width="610" height="810" alt="3" src="https://github.com/user-attachments/assets/10c1d463-9a25-4fee-a971-7c4636059802" />
 
-## 🧰 Tech Stack
+##  Tech Stack
 - **Python 3**
 - **Streamlit** (UI framework)
 - **Requests** (HTTP client)
@@ -58,7 +58,7 @@ Stay tuned for version **2.0**.
 
 ---
 
-## 📦 Installation
+## Installation
 ```bash
 git clone https://github.com/<your-username>/TraceTheLink.git
 cd TraceTheLink
