@@ -1,4 +1,4 @@
- TraceTheLink
+## TraceTheLink
 Modern SOC analyst tools for URL Intelligence, Redirects, and Threat Analysis.
 
 TraceTheLink is a tool designed for SOC Analysts, Threat Hunters, Incident Responders, and who need to quickly understand URL redirect behavior, detect suspicious patterns, and evaluate phishing risk.
