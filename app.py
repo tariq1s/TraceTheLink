@@ -1,91 +1,72 @@
 import streamlit as st
-import time
 
-st.set_page_config(
-    page_title="TraceTheLink – DFIR Suite",
-    layout="wide",
-    page_icon="🛡"
-)
+st.set_page_config(page_title="TraceTheLink", layout="wide", page_icon="TL")
 
-# ============================
-# CSS – Modern DFIR Blue Theme
-# ============================
-
-st.markdown("""
+st.markdown(
+    """
 <style>
-
 body {
     background: #0f1217;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Segoe UI', sans-serif;
 }
-
-h1, h2, h3, h4 {
-    color: #cfe3ff !important;
+.hero {
+    background: linear-gradient(135deg, #101720 0%, #172434 100%);
+    border: 1px solid #2d3d52;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
 }
-
-.sidebar .sidebar-content {
-    background: #11151c !important;
-}
-
-.df-card {
-    background-color: #1a1d22;
-    border: 1px solid #2d3643;
+.panel {
+    background: #141b24;
+    border: 1px solid #29384a;
+    border-radius: 14px;
     padding: 20px;
-    border-radius: 10px;
-    color: #d6e0f5;
-    margin-bottom: 25px;
-    transition: 0.2s ease-in-out;
 }
-
-.df-card:hover {
-    border-color: #4d88ff;
-    box-shadow: 0 0 10px #1b2b44;
-}
-
-.button-main {
-    background: linear-gradient(90deg, #2f59d1, #4d88ff);
-    padding: 14px 22px;
-    border-radius: 8px;
-    color: white !important;
-    font-weight: 600;
-    border: none;
-    transition: 0.15s ease-in-out;
-}
-
-.button-main:hover {
-    background: linear-gradient(90deg, #4d88ff, #2f59d1);
-    transform: scale(1.03);
-}
-
-.glow {
-    text-shadow: 0 0 15px #4d88ff;
-}
-
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
-# ============================
-# Main UI
-# ============================
-
-st.markdown("""
-    <h1 style='color:#cfe3ff; margin-bottom: 5px;'>
-        🛡 TraceTheLink – Analysis Suite
-    </h1>
-    <p style='color:#9bb5d1; font-size: 1.1rem;'>
-        Modern Tools for URL Intelligence, Redirect Tracking, and Threat Analysis.
+st.markdown(
+    """
+<div class="hero">
+    <h1 style="margin:0; color:#dbeafe;">TraceTheLink</h1>
+    <p style="color:#9db4cc; font-size:1.05rem; margin-top:10px;">
+        Practical URL and redirect analysis for phishing triage, suspicious link investigation,
+        and analyst-friendly reporting.
     </p>
-""", unsafe_allow_html=True)
+</div>
+""",
+    unsafe_allow_html=True,
+)
 
+left, right = st.columns([2, 1])
 
+with left:
+    st.markdown(
+        """
+<div class="panel">
+    <h3 style="color:#dbeafe; margin-top:0;">What it does</h3>
+    <p style="color:#bfd0e4;">
+        TraceTheLink follows redirect chains, highlights domain changes, extracts basic page metadata,
+        and produces a simple risk assessment to support fast link triage.
+    </p>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
-col1, col2 = st.columns(2)
+with right:
+    st.markdown(
+        """
+<div class="panel">
+    <h3 style="color:#dbeafe; margin-top:0;">Modes</h3>
+    <p style="color:#bfd0e4; margin-bottom:8px;">Use Streamlit for interactive review.</p>
+    <p style="color:#bfd0e4;">Use <code>tracethelink.py</code> for terminal and batch workflows.</p>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
-with col1:
-    if st.button("🔗 Redirect Analyzer", use_container_width=True):
-        st.switch_page("pages/analysis.py")
-
-with col2:
-    if st.button("⚙️ Coming Soon: Threat Scoring Engine", use_container_width=True):
-        st.info("This module will be released soon.")
-
+if st.button("Open Redirect Analyzer", use_container_width=True):
+    st.switch_page("pages/analysis.py")

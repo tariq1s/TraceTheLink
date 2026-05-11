@@ -1,227 +1,154 @@
 import streamlit as st
-import requests
-from bs4 import BeautifulSoup
-import re
-import tldextract
 from graphviz import Digraph
+
+from core.analyzer import DEFAULT_MAX_REDIRECTS, DEFAULT_TIMEOUT, analyze_url
+from core.reporting import render_markdown_result, render_text_result
 
 st.set_page_config(page_title="TraceTheLink Redirect Analysis", layout="wide")
 
-# ============================
-# Modern Blue UI
-# ============================
-
-st.markdown("""
+st.markdown(
+    """
 <style>
-
 body {
     background: #0f1217;
 }
-
-h1, h2, h3 {
-    color: #cfe3ff !important;
-}
-
-.df-box {
-    background: #1a1d22;
-    border: 1px solid #2d3643;
+.box {
+    background: #151d27;
+    border: 1px solid #2f4157;
     padding: 18px;
-    border-radius: 10px;
-    margin-bottom: 22px;
+    border-radius: 14px;
+    margin-bottom: 18px;
 }
-
-.status-200 { color: #00ff8c; font-weight: 600; }
-.status-301 { color: #4da6ff; font-weight: 600; }
-.status-302 { color: #ffe44d; font-weight: 600; }
-.status-error { color: #ff4f4f; font-weight: 600; }
-
-.threat-low { background:#0f341c; padding:12px; border-radius:8px; color:#4dff94; }
-.threat-med { background:#332a00; padding:12px; border-radius:8px; color:#ffea4d; }
-.threat-high { background:#341111; padding:12px; border-radius:8px; color:#ff4d4d; }
-
-.header-box {
-    background:#0d1117;
-    border:1px solid #334155;
-    padding:12px;
-    border-radius:6px;
-    margin-bottom:10px;
-}
-
+.risk-low { background:#12311f; color:#8ef0b5; padding:12px; border-radius:10px; }
+.risk-medium { background:#3a300d; color:#ffe08a; padding:12px; border-radius:10px; }
+.risk-high { background:#3a1717; color:#ffaaaa; padding:12px; border-radius:10px; }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
-st.markdown("<h1 style='color:#cfe3ff;'>🔗 Redirect Analyzer</h1>", unsafe_allow_html=True)
+st.title("Redirect Analyzer")
+st.caption("Interactive URL triage with redirect tracing, metadata review, and risk context.")
 
-# ============================
-# Helper Functions
-# ============================
+col1, col2, col3 = st.columns([4, 1, 1])
+with col1:
+    url = st.text_input("URL", placeholder="https://example.com")
+with col2:
+    timeout = st.number_input("Timeout", min_value=1, max_value=60, value=DEFAULT_TIMEOUT)
+with col3:
+    max_redirects = st.number_input("Max redirects", min_value=1, max_value=30, value=DEFAULT_MAX_REDIRECTS)
+allow_private = st.checkbox("Allow private/internal targets", value=False)
 
-def explain_status(code):
-    data = {
-        200: "OK – Final content delivered.",
-        301: "Moved Permanently – browser caches this redirect.",
-        302: "Temporary Redirect – often used for tracking.",
-        307: "Temporary redirect (method preserved).",
-        308: "Permanent redirect (method preserved)."
-    }
-    return data.get(code, "Unknown behavior")
-
-
-def check_meta_refresh(html):
-    soup = BeautifulSoup(html, "lxml")
-    meta = soup.find("meta", attrs={"http-equiv": "refresh"})
-    if meta and "url=" in meta.get("content", "").lower():
-        return meta["content"].split("url=")[-1]
-    return None
-
-
-def analyze_redirects(url):
-    chain = []
-    visited = set()
-
-    while url and url not in visited:
-        visited.add(url)
-
-        try:
-            r = requests.get(url, allow_redirects=False, timeout=7)
-            status = r.status_code
-
-            chain.append({
-                "url": url,
-                "status": status,
-                "explain": explain_status(status),
-                "headers": dict(r.headers)
-            })
-
-            if status in (301, 302, 303, 307, 308):
-                url = r.headers.get("Location")
-                continue
-
-            meta = check_meta_refresh(r.text)
-            if meta:
-                url = meta
-                continue
-
-            js = re.search(r"window.location.href\\s*=\\s*['\"](.*?)['\"]", r.text)
-            if js:
-                url = js.group(1)
-                continue
-
-            break
-
-        except Exception as e:
-            chain.append({"url": url, "status": "ERROR", "explain": str(e)})
-            break
-
-    return chain
-
-
-def phishing_score(url, chain):
-    score = 0
-    reasons = []
-
-    ext = tldextract.extract(url)
-    suffix = ext.suffix
-
-    bad_tlds = ["zip", "xyz", "click", "loan"]
-    shorteners = ["bit.ly", "tinyurl", "t.co"]
-    keywords = ["login", "bank", "wallet", "update"]
-
-    if suffix in bad_tlds:
-        score += 20
-        reasons.append(f"Suspicious TLD: .{suffix}")
-
-    if any(s in url for s in shorteners):
-        score += 25
-        reasons.append("URL shortener detected")
-
-    if any(k in url.lower() for k in keywords):
-        score += 20
-        reasons.append("Sensitive phishing keyword")
-
-    if len(chain) > 4:
-        score += 20
-        reasons.append("Long redirect chain")
-
-    return min(score, 100), reasons
-
-
-# ============================
-# UI
-# ============================
-
-url = st.text_input("Enter URL:", placeholder="https://example.com")
-
-if st.button("Analyze") and url:
-
-    chain = analyze_redirects(url)
-    final_url = chain[-1]["url"]
-
-    # -------------------------
-    # Redirect Chain
-    # -------------------------
-    st.markdown("<div class='df-box'><h3>📑 Redirect Chain</h3>", unsafe_allow_html=True)
-
-    for step in chain:
-        s = step["status"]
-        color = (
-            "status-200" if s == 200 else
-            "status-301" if s == 301 else
-            "status-302" if s == 302 else
-            "status-error"
+if st.button("Analyze", use_container_width=True):
+    if not url or not url.strip():
+        st.error("Please enter a URL to analyze.")
+        st.stop()
+    try:
+        result = analyze_url(
+            url,
+            timeout=int(timeout),
+            max_redirects=int(max_redirects),
+            allow_private=allow_private,
         )
-        st.markdown(
-            f"<p><span class='{color}'>[{s}]</span> → <code>{step['url']}</code><br>"
-            f"<small>{step['explain']}</small></p>",
-            unsafe_allow_html=True
-        )
-    st.markdown("</div>", unsafe_allow_html=True)
+    except Exception as exc:
+        st.error(f"Analysis failed: {exc}")
+    else:
+        risk_class = {
+            "low": "risk-low",
+            "medium": "risk-medium",
+            "high": "risk-high",
+        }.get(result["risk_level"], "risk-low")
 
-    # -------------------------
-    # HTTP Header Inspector
-    # -------------------------
-    st.markdown("<div class='df-box'><h3>🧩 HTTP Header Inspector</h3>", unsafe_allow_html=True)
+        summary_left, summary_right = st.columns([2, 1])
+        with summary_left:
+            st.markdown("<div class='box'>", unsafe_allow_html=True)
+            st.subheader("Analysis Summary")
+            st.write(f"**Original URL:** `{result['original_url']}`")
+            st.write(f"**Final URL:** `{result['final_url']}`")
+            st.write(f"**Final Status:** `{result['final_status_code']}` ({result['final_status_text']})")
+            st.write(f"**Page Title:** {result.get('title') or 'N/A'}")
+            st.write(f"**Recommended Action:** {result['recommended_action']}")
+            st.markdown("</div>", unsafe_allow_html=True)
 
-    for i, step in enumerate(chain):
-        with st.expander(f"Headers for Hop {i+1} — {step['url']}"):
-            for k, v in step.get("headers", {}).items():
-                st.markdown(f"<div class='header-box'><b>{k}</b>: {v}</div>", unsafe_allow_html=True)
+        with summary_right:
+            st.markdown("<div class='box'>", unsafe_allow_html=True)
+            st.subheader("Risk")
+            st.markdown(
+                f"<div class='{risk_class}'>Risk Level: {result['risk_level'].upper()} ({result['risk_score']}/100)</div>",
+                unsafe_allow_html=True,
+            )
+            for item in result["risk_reasoning"]:
+                st.write(f"- {item}")
+            st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("<div class='box'>", unsafe_allow_html=True)
+        st.subheader("Redirect Chain")
+        for hop in result["redirect_chain"]:
+            line = f"**Hop {hop['hop']}** `[{hop['status_code']}]` `{hop['url']}`"
+            if hop.get("location"):
+                line += f" -> `{hop['location']}`"
+            st.write(line)
+            st.caption(hop["status_text"])
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    # -------------------------
-    # Graph
-    # -------------------------
-    st.markdown("<div class='df-box'><h3>📊 Redirect Graph</h3>", unsafe_allow_html=True)
+        details_left, details_right = st.columns(2)
+        with details_left:
+            st.markdown("<div class='box'>", unsafe_allow_html=True)
+            st.subheader("Domain Changes")
+            if result["domain_changes"]:
+                for change in result["domain_changes"]:
+                    st.write(f"- `{change['from']}` -> `{change['to']}`")
+            else:
+                st.write("No domain changes observed.")
+            st.markdown("</div>", unsafe_allow_html=True)
 
-    dot = Digraph()
-    dot.attr("node", shape="box", style="filled", color="#4d88ff", fontcolor="black")
+            st.markdown("<div class='box'>", unsafe_allow_html=True)
+            st.subheader("Suspicious Indicators")
+            if result["suspicious_indicators"]:
+                for indicator in result["suspicious_indicators"]:
+                    st.write(f"- {indicator}")
+            else:
+                st.write("No suspicious indicators identified from static analysis.")
+            st.markdown("</div>", unsafe_allow_html=True)
 
-    for i, step in enumerate(chain):
-        dot.node(f"n{i}", f"{step['status']}\n{step['url']}")
+        with details_right:
+            st.markdown("<div class='box'>", unsafe_allow_html=True)
+            st.subheader("Metadata")
+            metadata = result.get("metadata") or {}
+            st.write(f"**Content-Type:** {metadata.get('content_type') or 'N/A'}")
+            st.write(f"**Server:** {metadata.get('server') or 'N/A'}")
+            st.write(f"**Meta Description:** {metadata.get('meta_description') or 'N/A'}")
+            st.write(f"**Meta Refresh:** {metadata.get('meta_refresh') or 'N/A'}")
+            st.write(f"**JS Redirect Pattern:** {metadata.get('javascript_redirect') or 'N/A'}")
+            if result.get("error"):
+                st.warning(result["error"])
+            st.markdown("</div>", unsafe_allow_html=True)
 
-    for i in range(len(chain) - 1):
-        dot.edge(f"n{i}", f"n{i+1}")
+        st.markdown("<div class='box'>", unsafe_allow_html=True)
+        st.subheader("Redirect Graph")
+        dot = Digraph()
+        dot.attr("node", shape="box", style="rounded,filled", color="#60a5fa", fillcolor="#dbeafe", fontname="Segoe UI")
+        for hop in result["redirect_chain"]:
+            dot.node(f"hop_{hop['hop']}", f"{hop['hop']}: {hop['status_code']}\n{hop['domain']}")
+        for idx in range(len(result["redirect_chain"]) - 1):
+            dot.edge(f"hop_{idx + 1}", f"hop_{idx + 2}")
+        st.graphviz_chart(dot, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    st.graphviz_chart(dot)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # -------------------------
-    # Threat Level
-    # -------------------------
-    st.markdown("<div class='df-box'><h3>⚠️ Threat Level</h3>", unsafe_allow_html=True)
-
-    risk, reasons = phishing_score(final_url, chain)
-    panel = (
-        "threat-low" if risk < 30 else
-        "threat-med" if risk < 70 else
-        "threat-high"
-    )
-
-    st.markdown(f"<div class='{panel}'>Threat Score: {risk}%</div>", unsafe_allow_html=True)
-
-    st.write("Why this score:")
-    for r in reasons:
-        st.write(f"- {r}")
-
-    st.markdown("</div>", unsafe_allow_html=True)
+        export_left, export_right = st.columns(2)
+        with export_left:
+            st.download_button(
+                "Download Markdown Report",
+                data=render_markdown_result(result),
+                file_name="tracethelink-report.md",
+                mime="text/markdown",
+                use_container_width=True,
+            )
+        with export_right:
+            st.download_button(
+                "Download Text Report",
+                data=render_text_result(result),
+                file_name="tracethelink-report.txt",
+                mime="text/plain",
+                use_container_width=True,
+            )

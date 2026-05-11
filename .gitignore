@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.streamlit/secrets.toml
+.venv/
+venv/
+env/
+ENV/
+report.md
+results.json
+*.report.md
+*.results.json
