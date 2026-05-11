@@ -68,5 +68,5 @@ with right:
         unsafe_allow_html=True,
     )
 
-if st.button("Open Redirect Analyzer", use_container_width=True):
+if st.button("Open Redirect Analyzer", width="stretch"):
     st.switch_page("pages/analysis.py")

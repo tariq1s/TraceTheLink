@@ -39,7 +39,7 @@ with col3:
     max_redirects = st.number_input("Max redirects", min_value=1, max_value=30, value=DEFAULT_MAX_REDIRECTS)
 allow_private = st.checkbox("Allow private/internal targets", value=False)
 
-if st.button("Analyze", use_container_width=True):
+if st.button("Analyze", width="stretch"):
     if not url or not url.strip():
         st.error("Please enter a URL to analyze.")
         st.stop()
@@ -132,7 +132,7 @@ if st.button("Analyze", use_container_width=True):
             dot.node(f"hop_{hop['hop']}", f"{hop['hop']}: {hop['status_code']}\n{hop['domain']}")
         for idx in range(len(result["redirect_chain"]) - 1):
             dot.edge(f"hop_{idx + 1}", f"hop_{idx + 2}")
-        st.graphviz_chart(dot, use_container_width=True)
+        st.graphviz_chart(dot, width="stretch")
         st.markdown("</div>", unsafe_allow_html=True)
 
         export_left, export_right = st.columns(2)
@@ -142,7 +142,7 @@ if st.button("Analyze", use_container_width=True):
                 data=render_markdown_result(result),
                 file_name="tracethelink-report.md",
                 mime="text/markdown",
-                use_container_width=True,
+                width="stretch",
             )
         with export_right:
             st.download_button(
@@ -150,5 +150,5 @@ if st.button("Analyze", use_container_width=True):
                 data=render_text_result(result),
                 file_name="tracethelink-report.txt",
                 mime="text/plain",
-                use_container_width=True,
+                width="stretch",
             )
